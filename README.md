@@ -25,6 +25,8 @@ This is a progrm which generates articles.
     .\\venv\\Scripts\\activate   # For Windows
     ```
 
+    Also, `source ./init.sh` is available for activating virtual environament on Linux/Mac
+
 4. Install the necessary packages in the virtual environment:
 
     ```
