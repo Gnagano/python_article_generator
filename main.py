@@ -21,10 +21,6 @@ def get_google_credentials():
   return account
 
 def getAnswerFromGPT (prompt):
-    # apikey, prompt):
-  # Set your OpenAI API key
-  # openai.api_key = apikey
-
   PROMPT_FORMAT = f"""
     Generate blog title with provided theme
 
@@ -80,9 +76,6 @@ def main():
 
   worksheet = gc.open(GSPREAD_SHEET_SHEET_NAME).worksheet('articles')
 
-  # apikey = os.environ['OPENAI_API_KEY']
-  # Read Spreadsheet
-  
   prompt_column = 1
   answer_column = 2
   prompt_row = 2
