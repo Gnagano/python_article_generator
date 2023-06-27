@@ -1,8 +1,11 @@
-# venv
-article_generator/
-
 # credentials
 service_account.json
 
+# python
+__pycache__
+
 # test
 test.py
+
+# venv
+article_generator/
