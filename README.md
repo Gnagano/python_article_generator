@@ -10,24 +10,13 @@ This is a progrm which generates articles.
     cd <project-directory>
     ```
 
-2. Create a Python virtual environment:
+2. Execute setup script
 
     ```
-    python3 -m venv venv
+    source init.sh
     ```
-
-    Here, `venv` is the name of the virtual environment. You can change it to another name if needed.
-
-3. Activate the created virtual environment:
-
-    ```
-    source venv/bin/activate  # For Linux/Mac
-    .\\venv\\Scripts\\activate   # For Windows
-    ```
-
-    Also, `source ./init.sh` is available for activating virtual environament on Linux/Mac
-
-4. Install the necessary packages in the virtual environment:
+    
+3. Install the necessary packages in the virtual environment:
 
     ```
     pip install -r requirements.txt

@@ -1,2 +1,8 @@
 # venv
 article_generator/
+
+# credentials
+service_account.json
+
+# test
+test.py

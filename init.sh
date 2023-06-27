@@ -1,7 +1,19 @@
 #!/bin/bash
 
-# Get the directory of this script
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# Constant
+BASEDIR=$(dirname "$(realpath "$0")")
+VENVDIR="article_generator"
 
-# Activate the virtual environment
-source ${DIR}/$1/bin/activate
+# Venv 
+if [ ! -d "${BASEDIR}/${VENVDIR}" ]; then
+  python3 -m venv "${BASEDIR}/${VENVDIR}"
+fi
+
+# Activate
+if [[ "$(uname -s)" == MINGW* ]] || [[ "$(uname -s)" == CYGWIN* ]]; then
+  # Windows (Git Bash, Cygwin) specific code
+  source "${BASEDIR}/${VENVDIR}/Scripts/activate"
+else
+  # Linux/Mac specific code
+  source "${BASEDIR}/${VENVDIR}/bin/activate"
+fi
