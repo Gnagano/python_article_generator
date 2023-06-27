@@ -10,7 +10,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
 # Constant
-from config.config import GSPREAD_SHEET_SHEET_NAME, GSPREAD_SHEET_SCOPES
+import config.config as c
 
 DIR = dir_path = os.path.dirname(os.path.abspath(__file__))
 ACCOUNT_PATH = abs_path = os.path.join(dir_path, 'credentials/service_account.json')
@@ -70,25 +70,24 @@ def main():
 
   # Authorization
   account = get_google_credentials()
-  credentials = ServiceAccountCredentials.from_json_keyfile_dict(account, GSPREAD_SHEET_SCOPES)
+  credentials = ServiceAccountCredentials.from_json_keyfile_dict(account, c.GSPREAD_SHEET_SCOPES)
   gc = gspread.authorize(credentials)
+  worksheet = gc.open(c.GSPREAD_SHEET_SHEET_NAME).worksheet(c.GSPREAD_SHEET_WORKSHEET_NAME_ARTICLES)
+  rows = worksheet.get_all_values()
 
+  # Set start position of spreadsheet
+  prompt_column = c.GSPREAD_SHEET_COLUMN_NUMBER_PROMPT
+  answer_column = c.GSPREAD_SHEET_COLUMN_NUMBER_ANSWER
 
-  worksheet = gc.open(GSPREAD_SHEET_SHEET_NAME).worksheet('articles')
-
-  prompt_column = 1
-  answer_column = 2
-  prompt_row = 2
-
-  while worksheet.cell(prompt_row, prompt_column).value is not None:
-    prompt = worksheet.cell(prompt_row, prompt_column).value
-    current_answer = worksheet.cell(prompt_row, answer_column).value
+  for prompt_row in range(c.GSPREAD_SHEET_ROW_NUMBER_PROMPT, len(rows)):
+    # Read row
+    prompt = rows[prompt_row - 1][prompt_column - 1]
+    current_answer = rows[prompt_row - 1][answer_column - 1]
 
     # Prevent overwrite
-    if current_answer is not None:
-      print(prompt_row)
+    if current_answer:
+      print(f"Skipping row {prompt_row + 1} due to existing answer.")
       prompt_row += 1
-      time.sleep(5)
       continue
 
     # Return article
@@ -98,6 +97,7 @@ def main():
     print(answer)
     worksheet.update_cell(prompt_row, answer_column, str(answer).lstrip())
     prompt_row += 1
+    time.sleep(c.CHAT_GPT_SLEEP_TIME)
 
 # スクリプトが直接実行された場合にのみmain()を呼び出す
 if __name__ == '__main__':
