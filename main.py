@@ -10,10 +10,15 @@ from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
 # Constant
-import config.config as c
+from config.config import Config as c
+
+# Error
+from error.errorReporter import error_console_report
+from error.retry import sleep_for_retry
 
 # Prompt
 from prompt.PromptGenerator import ArticlePromptGenerator as apg
+from prompt.PromptGenerator import ArticleTagPromptGenerator as tpg
 
 DIR = dir_path = os.path.dirname(os.path.abspath(__file__))
 ACCOUNT_PATH = abs_path = os.path.join(dir_path, 'credentials/service_account.json')
@@ -23,54 +28,16 @@ def get_google_credentials():
     account = json.load(f)
   return account
 
-def getAnswerFromGPT (prompt):
-  PROMPT_FORMAT = f"""
-    Generate blog title with provided theme
-
-    Theme:[{prompt}]
-
-    Generates 3 blog chapters with the given title and list
-    Generates a given title and a detailed book description of over 500 words
-    Then use markdown. Use prefaces, headings, subheadings, bold, and summaries to organize information.
-
-    Write the theme
-    Write the preface with detailed information and more than 300
-    Write Chapter 1 with detailed information and more than 500
-    Write Chapter 2 with detailed information and more than 500
-    Write Chapter 3 with detailed information and more than 500
-    Write the summarie with detailed information and more than 500
-
-    # Output Language
-    日本語
-
-    # Output Style
-    <h2>プリフェース</h2>
-    {{ プリフェースの文章 }}
-
-    <h2>1.{{Chapter1のタイトル}}</h2>
-    {{ Chapter1の文章 }}
-
-    <h2>2.{{Chapter2のタイトル}}</h2>
-    {{ Chapter2の文章 }}
-
-    <h2>3.{{Chapter3のタイトル}}</h2>
-    {{ Chapter3の文章 }}
-
-    <h2>まとめ</h2>
-    {{ Summarieの文章 }}
-  """
-
+def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
   response = openai.ChatCompletion.create(
-    # model="gpt-4",
-    model="gpt-3.5-turbo",
+    model=model,
     messages=[
-      {"role": "user", "content": PROMPT_FORMAT},
+      {"role": "user", "content": prompt},
     ]
   )
   return response['choices'][0]['message']['content']
 
 def main():
-
   # Authorization
   account = get_google_credentials()
   credentials = ServiceAccountCredentials.from_json_keyfile_dict(account, c.GSPREAD_SHEET_SCOPES)
@@ -82,66 +49,62 @@ def main():
   prompt_column = c.GSPREAD_SHEET_COLUMN_NUMBER_PROMPT
   answer_column = c.GSPREAD_SHEET_COLUMN_NUMBER_ANSWER
   start_row = c.GSPREAD_SHEET_ROW_NUMBER_PROMPT
-  articles = []
+  outputs = []
   interval_timeout_retry = c.CHAT_GPT_TIME_OUT_RETRY_INTERVAL
   
+  # PromptGeneartor
+  pg_a = apg.ArticlePromptGenerator()
+  pg_t = tpg.ArticleTagPromptGenerator()
+
   for prompt_row in range(c.GSPREAD_SHEET_ROW_NUMBER_PROMPT, len(rows) + 1):
-    # Read row
-    prompt = rows[prompt_row - 1][prompt_column - 1]
-    current_answer = rows[prompt_row - 1][answer_column - 1]
+    retry = True
+    while retry:
+      # Read row
+      title = rows[prompt_row - 1][prompt_column - 1]
+      current_answer = rows[prompt_row - 1][answer_column - 1]
 
-    # Prevent overwrite
-    if current_answer:
-      print(f"Skipping row {prompt_row + 1} due to existing answer.")
-      prompt_row += 1
-      start_row += 1
-      continue
+      # Prevent overwrite
+      if current_answer:
+        print(f"Skipping row {prompt_row + 1} due to existing answer.")
+        prompt_row += 1
+        start_row += 1
+        retry = False
+        continue
 
-    # Return article
-    print (prompt)
-    try:
-      answer = getAnswerFromGPT(prompt)
-      print("----new article----")
-      print(answer)
-      articles.append([answer])
-      worksheet.update_cell(prompt_row, answer_column, str(answer).lstrip())
-      prompt_row += 1
-      time.sleep(c.CHAT_GPT_SLEEP_TIME)
-    except Exception as e:
-      print(f"An error occurred: {e}")
-      print(f"--- Start time out retry interval {interval_timeout_retry} seconds ---")
-      time.sleep(interval_timeout_retry)
-      print(f"--- End time out retry interval ---")
+      # Return article
+      print (title)
+      try:
 
-  range_articles=f'B{start_row}:B{start_row + len(articles) - 1}' 
-  worksheet.update(range_articles, articles)
+        # Create prompt
+        prompt_article= pg_a.generate_prompt(title=title)
+        prompt_tag = pg_t.generate_prompt(title=title)
 
-def get_prompt_template_from_file(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        prompt_format = file.read()
-    return prompt_format
+        # Create answer from GPT
+        article = getAnswerFromGPT(prompt_article)
+        tag = getAnswerFromGPT(prompt_tag)
 
-def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
-  prompt_template = get_prompt_template_from_file('./prompt/article01.txt')
-  prompt_formatted = prompt_template.format(prompt=prompt)
+        # Console output
+        print("----new article----")
+        print(article)
+        print(tag)
 
-  response = openai.ChatCompletion.create(
-    model=model,
-    messages=[
-      {"role": "user", "content": prompt_formatted},
-    ]
-  )
-  return response['choices'][0]['message']['content']
+        # Update outputs
+        outputs.append([article, tag])
+        
+        # If no exception, then no need to retry
+        retry = False
 
-def main_test():
-  pg = apg.ArticlePromptGenerator()
-  print(pg.generate_prompt(title="良いプロテインの選び方"))
-  # article = getAnswerFromGPT("良いプロテインの選び方")
-  # print(article)
-  # format = get_prompt_format_from_file('./prompt/article01.txt')
-  # print(format)
+        # Sleep 
+        time.sleep(c.CHAT_GPT_SLEEP_TIME)
+      except Exception as e:
+        error_console_report(e)
+        sleep_for_retry(interval_timeout_retry)
+
+  print(f" article--->{len(outputs)}")
+  range_articles=f'B{start_row}:C{start_row + len(outputs) - 1}' 
+  worksheet.update(range_articles, outputs)
 
 # スクリプトが直接実行された場合にのみmain()を呼び出す
 if __name__ == '__main__':
-    # main()
-    main_test()
+    main()
+    # main_test()
