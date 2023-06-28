@@ -12,6 +12,9 @@ import gspread
 # Constant
 import config.config as c
 
+# Prompt
+from prompt.PromptGenerator import ArticlePromptGenerator as apg
+
 DIR = dir_path = os.path.dirname(os.path.abspath(__file__))
 ACCOUNT_PATH = abs_path = os.path.join(dir_path, 'credentials/service_account.json')
 
@@ -113,13 +116,13 @@ def main():
   range_articles=f'B{start_row}:B{start_row + len(articles) - 1}' 
   worksheet.update(range_articles, articles)
 
-def get_prompt_format_from_file(file_path):
+def get_prompt_template_from_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         prompt_format = file.read()
     return prompt_format
 
 def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
-  prompt_template = get_prompt_format_from_file('./prompt/article01.txt')
+  prompt_template = get_prompt_template_from_file('./prompt/article01.txt')
   prompt_formatted = prompt_template.format(prompt=prompt)
 
   response = openai.ChatCompletion.create(
@@ -131,8 +134,10 @@ def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
   return response['choices'][0]['message']['content']
 
 def main_test():
-  article = getAnswerFromGPT("良いプロテインの選び方")
-  print(article)
+  pg = apg.ArticlePromptGenerator()
+  pg.generate_prompt()
+  # article = getAnswerFromGPT("良いプロテインの選び方")
+  # print(article)
   # format = get_prompt_format_from_file('./prompt/article01.txt')
   # print(format)
 
