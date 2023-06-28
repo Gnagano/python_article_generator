@@ -1,6 +1,6 @@
 Generate blog title with provided theme
 
-Theme:[{prompt}]
+Theme:[{title}]
 
 Generates 3 blog chapters with the given title and list
 Generates a given title and a detailed book description of over 500 words

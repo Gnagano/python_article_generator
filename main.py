@@ -135,7 +135,7 @@ def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
 
 def main_test():
   pg = apg.ArticlePromptGenerator()
-  pg.generate_prompt()
+  print(pg.generate_prompt(title="良いプロテインの選び方"))
   # article = getAnswerFromGPT("良いプロテインの選び方")
   # print(article)
   # format = get_prompt_format_from_file('./prompt/article01.txt')
