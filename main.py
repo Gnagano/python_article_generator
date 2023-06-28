@@ -78,8 +78,11 @@ def main():
   # Set start position of spreadsheet
   prompt_column = c.GSPREAD_SHEET_COLUMN_NUMBER_PROMPT
   answer_column = c.GSPREAD_SHEET_COLUMN_NUMBER_ANSWER
-
-  for prompt_row in range(c.GSPREAD_SHEET_ROW_NUMBER_PROMPT, len(rows)):
+  start_row = c.GSPREAD_SHEET_ROW_NUMBER_PROMPT
+  articles = []
+  interval_timeout_retry = c.CHAT_GPT_TIME_OUT_RETRY_INTERVAL
+  
+  for prompt_row in range(c.GSPREAD_SHEET_ROW_NUMBER_PROMPT, len(rows) + 1):
     # Read row
     prompt = rows[prompt_row - 1][prompt_column - 1]
     current_answer = rows[prompt_row - 1][answer_column - 1]
@@ -88,17 +91,52 @@ def main():
     if current_answer:
       print(f"Skipping row {prompt_row + 1} due to existing answer.")
       prompt_row += 1
+      start_row += 1
       continue
 
     # Return article
     print (prompt)
-    answer = getAnswerFromGPT(prompt)
-    print("----new article----")
-    print(answer)
-    worksheet.update_cell(prompt_row, answer_column, str(answer).lstrip())
-    prompt_row += 1
-    time.sleep(c.CHAT_GPT_SLEEP_TIME)
+    try:
+      answer = getAnswerFromGPT(prompt)
+      print("----new article----")
+      print(answer)
+      articles.append([answer])
+      worksheet.update_cell(prompt_row, answer_column, str(answer).lstrip())
+      prompt_row += 1
+      time.sleep(c.CHAT_GPT_SLEEP_TIME)
+    except Exception as e:
+      print(f"An error occurred: {e}")
+      print(f"--- Start time out retry interval {interval_timeout_retry} seconds ---")
+      time.sleep(interval_timeout_retry)
+      print(f"--- End time out retry interval ---")
+
+  range_articles=f'B{start_row}:B{start_row + len(articles) - 1}' 
+  worksheet.update(range_articles, articles)
+
+def get_prompt_format_from_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        prompt_format = file.read()
+    return prompt_format
+
+def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
+  prompt_template = get_prompt_format_from_file('./prompt/article01.txt')
+  prompt_formatted = prompt_template.format(prompt=prompt)
+
+  response = openai.ChatCompletion.create(
+    model=model,
+    messages=[
+      {"role": "user", "content": prompt_formatted},
+    ]
+  )
+  return response['choices'][0]['message']['content']
+
+def main_test():
+  article = getAnswerFromGPT("良いプロテインの選び方")
+  print(article)
+  # format = get_prompt_format_from_file('./prompt/article01.txt')
+  # print(format)
 
 # スクリプトが直接実行された場合にのみmain()を呼び出す
 if __name__ == '__main__':
-    main()
+    # main()
+    main_test()
