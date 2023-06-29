@@ -1,9 +1,13 @@
 import gspread
 import json
 import os
-import openai
 from oauth2client.service_account import ServiceAccountCredentials
 import time
+
+# LLM
+import openai
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import HumanMessage
 
 # GSpread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -29,13 +33,9 @@ def get_google_credentials():
   return account
 
 def getAnswerFromGPT (prompt, model="gpt-3.5-turbo"):
-  response = openai.ChatCompletion.create(
-    model=model,
-    messages=[
-      {"role": "user", "content": prompt},
-    ]
-  )
-  return response['choices'][0]['message']['content']
+  chat = ChatOpenAI(model=model, temperature=0)
+  msg = chat([HumanMessage(content=prompt)])
+  return msg.content
 
 def main():
   # Authorization
@@ -104,7 +104,20 @@ def main():
   range_articles=f'B{start_row}:C{start_row + len(outputs) - 1}' 
   worksheet.update(range_articles, outputs)
 
+
+def main_test():
+  # PromptGeneartor
+  pg_a = apg.ArticlePromptGenerator()
+  pg_t = tpg.ArticleTagPromptGenerator()
+
+  title="test"
+  prompt_article= pg_a.generate_prompt(title=title)
+  prompt_tag = pg_t.generate_prompt(title=title)
+
+  print(prompt_article)
+  print(prompt_tag)
+
 # スクリプトが直接実行された場合にのみmain()を呼び出す
 if __name__ == '__main__':
-    main()
-    # main_test()
+  main()
+  # main_test()
