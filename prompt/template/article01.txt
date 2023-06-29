@@ -1,0 +1,33 @@
+Generate blog title with provided theme
+
+Theme:[{title}]
+
+Generates 3 blog chapters with the given title and list
+Generates a given title and a detailed book description of over 500 words
+Then use markdown. Use prefaces, headings, subheadings, bold, and summaries to organize information.
+
+Write the theme
+Write the preface with detailed information and more than 300
+Write Chapter 1 with detailed information and more than 500
+Write Chapter 2 with detailed information and more than 500
+Write Chapter 3 with detailed information and more than 500
+Write the summarie with detailed information and more than 500
+
+# Output Language
+日本語
+
+# Output Style
+<h2>プリフェース</h2>
+{{ プリフェースの文章 }}
+
+<h2>1.{{Chapter1のタイトル}}</h2>
+{{ Chapter1の文章 }}
+
+<h2>2.{{Chapter2のタイトル}}</h2>
+{{ Chapter2の文章 }}
+
+<h2>3.{{Chapter3のタイトル}}</h2>
+{{ Chapter3の文章 }}
+
+<h2>まとめ</h2>
+{{ Summarieの文章 }}
