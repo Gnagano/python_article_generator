@@ -5,7 +5,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 import time
 
 # LLM
-import openai
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage
 
@@ -66,7 +65,6 @@ def main():
       # Prevent overwrite
       if current_answer:
         print(f"Skipping row {prompt_row + 1} due to existing answer.")
-        prompt_row += 1
         start_row += 1
         retry = False
         continue
@@ -105,17 +103,17 @@ def main():
   worksheet.update(range_articles, outputs)
 
 
-def main_test():
-  # PromptGeneartor
-  pg_a = apg.ArticlePromptGenerator()
-  pg_t = tpg.ArticleTagPromptGenerator()
+# def main_test():
+#   # PromptGeneartor
+#   pg_a = apg.ArticlePromptGenerator()
+#   pg_t = tpg.ArticleTagPromptGenerator()
 
-  title="test"
-  prompt_article= pg_a.generate_prompt(title=title)
-  prompt_tag = pg_t.generate_prompt(title=title)
+#   title="test"
+#   prompt_article= pg_a.generate_prompt(title=title)
+#   prompt_tag = pg_t.generate_prompt(title=title)
 
-  print(prompt_article)
-  print(prompt_tag)
+#   print(prompt_article)
+#   print(prompt_tag)
 
 # スクリプトが直接実行された場合にのみmain()を呼び出す
 if __name__ == '__main__':
