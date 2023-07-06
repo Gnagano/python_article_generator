@@ -1,12 +1,12 @@
-from .PromptGenerator import PromptGenerator
+from .ChatOpenAIChain import ChatOpenAIChain
 from ..config.constant import Constant as c
 
-class ArticleTagPromptGenerator (PromptGenerator):
+class ArticleTagGeneratorChain (ChatOpenAIChain):
   TEMPLATE_NAME = c.PROMPT_TEMPLATE_KEYS['articleTag01']
 
-  def generate_prompt(self, **kwargs):
+  def get_response(self, **kwargs):
     # validation for required parameters
     if 'title' not in kwargs:
       raise ValueError('title is required')
 
-    return self.prompt_template.format(title=kwargs['title'])
+    return self.chain(inputs=kwargs)['text']

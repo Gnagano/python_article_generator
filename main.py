@@ -19,9 +19,9 @@ from config.config import Config as c
 from error.errorReporter import error_console_report
 from error.retry import sleep_for_retry
 
-# Prompt
-from prompt.PromptGenerator import ArticlePromptGenerator as apg
-from prompt.PromptGenerator import ArticleTagPromptGenerator as tpg
+# Chain / ChatOpenAI 
+from chain.ChatOpenAIChain import ArticleGeneratorChain as agc
+from chain.ChatOpenAIChain import ArticleTagGeneratorChain as tgc
 
 DIR = dir_path = os.path.dirname(os.path.abspath(__file__))
 ACCOUNT_PATH = abs_path = os.path.join(dir_path, 'credentials/service_account.json')
@@ -52,8 +52,8 @@ def main():
   interval_timeout_retry = c.CHAT_GPT_TIME_OUT_RETRY_INTERVAL
   
   # PromptGeneartor
-  pg_a = apg.ArticlePromptGenerator()
-  pg_t = tpg.ArticleTagPromptGenerator()
+  c_ag = agc.ArticleGeneratorChain()
+  c_tg = tgc.ArticleTagGeneratorChain()
 
   for prompt_row in range(c.GSPREAD_SHEET_ROW_NUMBER_PROMPT, len(rows) + 1):
     retry = True
@@ -73,13 +73,9 @@ def main():
       print (title)
       try:
 
-        # Create prompt
-        prompt_article= pg_a.generate_prompt(title=title)
-        prompt_tag = pg_t.generate_prompt(title=title)
-
-        # Create answer from GPT
-        article = getAnswerFromGPT(prompt_article)
-        tag = getAnswerFromGPT(prompt_tag)
+        # Create chatModelChain
+        article = c_ag.get_response(title=title)
+        tag = c_tg.get_response(title=title)
 
         # Console output
         print("----new article----")
@@ -101,7 +97,6 @@ def main():
   print(f" article--->{len(outputs)}")
   range_articles=f'B{start_row}:C{start_row + len(outputs) - 1}' 
   worksheet.update(range_articles, outputs)
-
 
 # def main_test():
 #   # PromptGeneartor

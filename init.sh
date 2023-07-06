@@ -17,3 +17,5 @@ else
   # Linux/Mac specific code
   source "${BASEDIR}/${VENVDIR}/bin/activate"
 fi
+
+pip install -r requirements.txt
