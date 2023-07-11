@@ -3,8 +3,11 @@ from bs4 import BeautifulSoup
 from urllib.parse import quote
 from xml.sax.saxutils import unescape
 
+# Constant
+from config.config import Config as c
+
 def get_suggestions(keyword, lang="en"):
-  url = f"https://www.google.co.jp/complete/search?output=toolbar&q={quote(keyword)}&hl={lang}"
+  url = f"{c.API_GOOGLE_SUGGEST_KEYWORDS}&q={quote(keyword)}&hl={lang}"
   response = requests.get(url)
   soup = BeautifulSoup(response.content, features="xml")
   suggestions = soup.find_all('suggestion')
