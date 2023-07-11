@@ -1,3 +1,4 @@
+import json
 from .ChatOpenAIChain import ChatOpenAIChain
 from ..config.constant import Constant as c
 
@@ -10,4 +11,6 @@ class MainKeywordGeneratorChain (ChatOpenAIChain):
       if (key) not in kwargs:
         raise ValueError(f'{key} is required')
 
-    return self.chain(inputs=kwargs)['text']
+    jsonStr = self.chain(inputs=kwargs)['text']
+    jsonObj = json.loads(jsonStr)
+    return jsonObj
