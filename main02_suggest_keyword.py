@@ -11,6 +11,7 @@ def get_suggestions(keyword, lang="en"):
   response = requests.get(url)
   soup = BeautifulSoup(response.content, features="xml")
   suggestions = soup.find_all('suggestion')
+  print(suggestions)
   data_values = [suggestion['data'] for suggestion in suggestions]
   return data_values
 

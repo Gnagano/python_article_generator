@@ -13,4 +13,5 @@ class MainKeywordGeneratorChain (ChatOpenAIChain):
 
     jsonStr = self.chain(inputs=kwargs)['text']
     jsonObj = json.loads(jsonStr)
-    return jsonObj
+    keywords = [item['keyword'] for item in jsonObj]
+    return keywords

@@ -27,7 +27,6 @@
 JSON形式の配列として出力してください。
 keyは、keywordとdescriptionでお願いします。
 
-
 # ネガティブプロンプト
 Output Styleの形式でのみ出力してください。
 他の文章は不要です。
