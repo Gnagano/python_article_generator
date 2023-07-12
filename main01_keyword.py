@@ -12,9 +12,9 @@ def replace_particle_with_space(text):
   modified_sentence = ""
   for token in t.tokenize(text):
       if token.part_of_speech.startswith('助詞'):
-          modified_sentence += ' '
+        modified_sentence += ' '
       else:
-          modified_sentence += token.surface
+        modified_sentence += token.surface
   return modified_sentence
 
 def main():
@@ -29,7 +29,6 @@ def main():
   
   for keyword in keywords:
     keyword_modified = replace_particle_with_space(keyword)
-    print(json.dumps(keyword_modified, indent=2, ensure_ascii=False))
     suggestKeywords = get_suggestions(keyword=keyword, lang="ja")
     res.append({"keyword": keyword_modified, "suggestKeywords": suggestKeywords})
   print(json.dumps(res, indent=2, ensure_ascii=False))

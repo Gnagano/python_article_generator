@@ -2,7 +2,10 @@ from .ChatOpenAIChain import ChatOpenAIChain
 from ..config.constant import Constant as c
 
 class ArticleTagGeneratorChain (ChatOpenAIChain):
-  TEMPLATE_NAME = c.PROMPT_TEMPLATE_KEYS['articleTag01']
+  TEMPLATE_NAME = c.PROMPT_TEMPLATE_KEYS['articleTag']
+
+  def __init__(self, version="1.0", model="gpt-3.5-turbo"):
+    super().__init__(version=version, model=model)
 
   def get_response(self, **kwargs):
     # validation for required parameters
