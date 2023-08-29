@@ -7,10 +7,10 @@ from langchain.chains import LLMChain
 class ChatOpenAIChain (ABC):
   TEMPLATE_NAME = ''
   
-  def __init__(self, model="gpt-3.5-turbo"):
+  def __init__(self, version, model="gpt-3.5-turbo"):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     template_dir_path = os.path.join(current_dir, '../template')
-    template_file_path = os.path.join(template_dir_path, f"{self.TEMPLATE_NAME}.txt")
+    template_file_path = os.path.join(template_dir_path, f"{self.TEMPLATE_NAME}_v{version}.txt")
     with open(template_file_path, 'r') as f:
       prompt = PromptTemplate.from_template(f.read())
       chat = ChatOpenAI(model=model)
