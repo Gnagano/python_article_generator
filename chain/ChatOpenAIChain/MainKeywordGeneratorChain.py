@@ -15,7 +15,7 @@ class MainKeywordGeneratorChain (ChatOpenAIChain):
         raise ValueError(f'{key} is required')
 
     jsonStr = self.chain(inputs=kwargs)['text']
-    print(jsonStr)
+    # print(jsonStr)
     jsonObj = json.loads(jsonStr)
     keywords = [item['keyword'] for item in jsonObj]
     return keywords

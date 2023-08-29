@@ -27,15 +27,14 @@ def main():
   solution = "バイアグラ"
 
   keywords = c_mk.get_response(problem=problem, solution=solution)
-  
+
   res = []
   
   for keyword in keywords:
     keyword_modified = replace_particle_with_space(keyword)
     suggestKeywords = get_suggestions(keyword=keyword, lang="ja")
     res.append({"keyword": keyword_modified, "suggestKeywords": suggestKeywords})
-  # print(json.dumps(res, indent=2, ensure_ascii=False))
-
+  
   # Initialize the result array
   result = []
 
@@ -47,10 +46,7 @@ def main():
       # Otherwise, add the "keyword" to the result
       else:
           result.append(item["keyword"])
-
-  # print(result)
-  # print(json.dumps(result, indent=2, ensure_ascii=False))
-
+  
   points = c_bt.get_response(problem=problem, solution=solution, keywords=result)
 
   print(json.dumps(points, indent=2, ensure_ascii=False))
