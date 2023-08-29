@@ -3,5 +3,6 @@ class Constant:
   PROMPT_TEMPLATE_KEYS = {
     "article": "article",
     "articleTag": "articleTag",
-    "mainKeyword": "mainKeyword"
+    "mainKeyword": "mainKeyword",
+    "blogThemeKeywordAssociationScore": "blogThemeKeywordAssociationScore"
   }

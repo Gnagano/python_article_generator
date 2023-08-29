@@ -3,6 +3,7 @@
 # Constant
 BASEDIR=$(dirname "$(realpath "$0")")
 VENVDIR="article_generator"
+pip install --upgrade pip
 
 # Venv 
 if [ ! -d "${BASEDIR}/${VENVDIR}" ]; then
