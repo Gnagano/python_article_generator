@@ -26,6 +26,7 @@
 # Output Style
 JSON形式の配列として出力してください。
 keyは、keywordとdescriptionでお願いします。
+Json配列に変換できるように必ず最初は[で、最後は]で終わらせてください。
 
 # ネガティブプロンプト
 Output Styleの形式でのみ出力してください。
